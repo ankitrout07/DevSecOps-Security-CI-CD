@@ -1,30 +1,52 @@
-# DevSecOps Security Autoscaling & K8S Blue-Green
+# DevSecOps Blue-Green Deployment on Kubernetes
 
-![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
-![Kubernetes](https://img.shields.io/badge/kubernetes-%23326ce5.svg?style=for-the-badge&logo=kubernetes&logoColor=white)
-![GitHub Actions](https://img.shields.io/badge/github%20actions-%232088FF.svg?style=for-the-badge&logo=githubactions&logoColor=white)
-
-An automated, high-availability 3-tier architecture featuring a **Node.js Backend**, **MySQL Primary-Replica Cluster**, and a **React/Next.js Frontend**. This repository demonstrates production-level scaling logic and CI/CD security integration.
-
-## 🏗️ Architecture Overview
-
-*   **Frontend Tier:** Containerized UI optimized for high-concurrency.
-*   **Application Tier:** Node.js API with horizontal autoscaling (HPA).
-*   **Database Tier:** MySQL Primary (RW) with dynamic Scaling Read-Replicas.
-*   **Caching:** Redis Cluster for session management and speed.
-
-## 🛠️ Tech Stack
-
-*   **Orchestration:** Docker Compose / Kubernetes (EKS/GKE)
-*   **Monitoring:** `ctop`, `Prometheus`, `Grafana`
-*   **Database:** MySQL 8.0 with GTID-based replication
-*   **Security:** Snyk, SonarQube, and OWASP ZAP scanning
+A production-ready CI/CD implementation featuring a Node.js application deployed using a **Blue-Green strategy**. This project focuses on zero-downtime updates, container hardening, and automated security scanning.
 
 ---
 
-## 🚦 Getting Started
+## 🚀 Project Overview
+This project demonstrates a full DevSecOps lifecycle:
+1. **Develop:** Node.js application with environment-aware UI.
+2. **Harden:** Multi-stage Docker builds to reduce attack surface.
+3. **Scan:** Automated vulnerability assessment using **Trivy**.
+4. **Orchestrate:** Kubernetes (Minikube) cluster management using **Kustomize**.
+5. **Deploy:** Blue-Green traffic shifting for zero-downtime releases.
 
-### 1. Clone the Repository
+---
+
+## 🛠 Tech Stack
+* **Runtime:** Node.js
+* **Containerization:** Docker (Multi-stage builds)
+* **Orchestration:** Kubernetes (Minikube)
+* **Configuration:** Kustomize (Overlays for Blue/Green)
+* **Security:** Trivy (Container Scanning)
+* **CI/CD:** GitHub Actions
+
+---
+
+## 🛡 Security Implementation
+The project follows "Shift Left" security principles:
+* **Trivy Scanning:** The pipeline fails automatically if any `CRITICAL` vulnerabilities are detected in the container image.
+* **Non-Root User:** The Dockerfile is configured to run the application as a non-privileged user to prevent container breakout exploits.
+* **Minimal Base Image:** Uses lightweight images to minimize the number of installed packages and potential vulnerabilities.
+
+---
+
+## 🏗 Kubernetes Architecture
+The project uses a **Base + Overlay** structure with Kustomize:
+* `k8s/base/`: Contains the core Deployment and Service manifests.
+* `k8s/overlays/blue/`: Configures the stable production environment.
+* `k8s/overlays/green/`: Configures the new version for testing.
+* `production-service.yaml`: Acts as the "Traffic Router" using label selectors.
+
+---
+
+## 🚦 Deployment & Traffic Shifting
+
+### 1. Build and Scan
 ```bash
-git clone [https://github.com/ankitrout07/DevSecOps-Security-CI-CD.git](https://github.com/ankitrout07/DevSecOps-Security-CI-CD.git)
-cd DevSecOps-Security-CI-CD
+# Build the image
+docker build -t devsecops-node-app:v1 .
+
+# Scan for vulnerabilities
+trivy image --severity CRITICAL devsecops-node-app:v1
