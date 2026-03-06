@@ -3,7 +3,7 @@ const winston = require('winston');
 const client = require('prom-client');
 
 const app = express();
-const port = 8080;
+const port = process.env.PORT || 8080;
 
 // Structured Logging with Winston
 const logger = winston.createLogger({
