@@ -1,0 +1,22 @@
+# Trivy configuration file
+# For more info see: https://aquasecurity.github.io/trivy/latest/docs/references/configuration/cli/
+
+scan:
+  scanners:
+    - vuln
+    - secret
+    - misconfig
+
+severity:
+  - CRITICAL
+  - HIGH
+
+vuln:
+  type:
+    - os
+    - library
+
+report:
+  format: table
+  exit-code: 1 # Fail if vulnerabilities are found
+  ignore-unfixed: true # Focus on actionable fixes

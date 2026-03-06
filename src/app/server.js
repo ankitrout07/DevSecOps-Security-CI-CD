@@ -1,12 +1,45 @@
 const express = require('express');
+const winston = require('winston');
+const client = require('prom-client');
+
 const app = express();
 const port = 8080;
+
+// Structured Logging with Winston
+const logger = winston.createLogger({
+    level: 'info',
+    format: winston.format.json(),
+    transports: [
+        new winston.transports.Console()
+    ]
+});
+
+// Prometheus Metrics
+const collectDefaultMetrics = client.collectDefaultMetrics;
+collectDefaultMetrics({ register: client.register });
+
+const httpRequestDurationMicroseconds = new client.Histogram({
+    name: 'http_request_duration_seconds',
+    help: 'Duration of HTTP requests in microseconds',
+    labelNames: ['method', 'route', 'code'],
+    buckets: [0.1, 0.3, 0.5, 0.7, 1, 3, 5, 7, 10]
+});
+
+// Middleware to measure request duration
+app.use((req, res, next) => {
+    const end = httpRequestDurationMicroseconds.startTimer();
+    res.on('finish', () => {
+        end({ method: req.method, route: req.path, code: res.statusCode });
+    });
+    next();
+});
 
 // The APP_ENV variable tells us which environment we are in
 const env = process.env.APP_ENV || 'DEVELOPMENT';
 const color = env === 'GREEN' ? '#2ecc71' : '#3498db';
 
 app.get('/', (req, res) => {
+    logger.info(`Request received on ${env} environment`);
     res.send(`
         <!DOCTYPE html>
         <html>
@@ -47,8 +80,9 @@ app.get('/', (req, res) => {
             <div class="card">
                 <div class="status-badge">${env} ENVIRONMENT</div>
                 <h1>System Status: Operational</h1>
-                <p>Deployment version: <strong>v1.0.0</strong></p>
+                <p>Deployment version: <strong>v1.1.0</strong></p>
                 <p>Security Scan: <strong>Passed (Trivy)</strong></p>
+                <p>Observability: <strong>Enabled (Prometheus)</strong></p>
                 <div class="footer">DevSecOps Blue-Green Pipeline Demo</div>
             </div>
         </body>
@@ -56,6 +90,15 @@ app.get('/', (req, res) => {
     `);
 });
 
+app.get('/health', (req, res) => {
+    res.status(200).send('OK');
+});
+
+app.get('/metrics', async (req, res) => {
+    res.set('Content-Type', client.register.contentType);
+    res.end(await client.register.metrics());
+});
+
 app.listen(port, () => {
-    console.log(`App listening at http://localhost:${port}`);
+    logger.info(`App listening at http://localhost:${port}`);
 });

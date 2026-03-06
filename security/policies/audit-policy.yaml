@@ -1,0 +1,19 @@
+# K8s Manifest Security Best Practices (Audit Policy)
+# This serves as a checklist for security reviews
+
+policies:
+  - name: NO_PRIVILEGED_CONTAINERS
+    severity: CRITICAL
+    description: "Containers must not run in privileged mode"
+  - name: RUN_AS_NON_ROOT
+    severity: HIGH
+    description: "Pods must define runAsUser and runAsNonRoot"
+  - name: RESOURCE_LIMITS_REQUIRED
+    severity: MEDIUM
+    description: "Every container must have CPU/Memory limits defined"
+  - name: READ_ONLY_ROOT_FILESYSTEM
+    severity: LOW
+    description: "Root filesystem should be immutable where possible"
+  - name: DISALLOW_LATEST_TAG
+    severity: HIGH
+    description: "Always use specific version tags instead of 'latest'"
