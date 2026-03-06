@@ -1,0 +1,17 @@
+resources:
+  - ../../base
+namePrefix: green-
+labels:
+  - pairs:
+      app: node-app
+      variant: green
+patches:
+  - target:
+      kind: Deployment
+      name: node-app
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/env
+        value:
+          - name: APP_ENV
+            value: "GREEN"

@@ -1,0 +1,16 @@
+resources:
+  - ../../base
+namePrefix: blue-
+commonLabels:
+  app: node-app
+  variant: blue
+patches:
+  - target:
+      kind: Deployment
+      name: node-app
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/env
+        value:
+          - name: APP_ENV
+            value: "BLUE"

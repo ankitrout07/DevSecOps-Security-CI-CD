@@ -1,0 +1,11 @@
+node_modules
+npm-debug.log
+.git
+.github
+.gitignore
+k8s/
+scripts/
+security/
+README.md
+Dockerfile
+.dockerignore
