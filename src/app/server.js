@@ -36,7 +36,7 @@ app.use((req, res, next) => {
 
 // The APP_ENV variable tells us which environment we are in
 const env = process.env.APP_ENV || 'DEVELOPMENT';
-const color = env === 'GREEN' ? '#2ecc71' : '#3498db';
+const color = env === 'GREEN' ? '#ccbc2e' : '#3498db';
 
 app.get('/', (req, res) => {
     logger.info(`Request received on ${env} environment`);
