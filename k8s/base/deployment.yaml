@@ -12,9 +12,18 @@ spec:
       labels:
         app: node-app
     spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
       containers:
       - name: node-app
         image: devsecops-node-app:v1
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
         ports:
         - containerPort: 8080
         resources:
@@ -39,3 +48,5 @@ spec:
         env:
         - name: APP_ENV
           value: "DEVELOPMENT"
+        - name: APP_VERSION
+          value: "v1.1.0"
