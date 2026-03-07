@@ -1,0 +1,84 @@
+================================================================================
+🚀 DEVSECOPS BLUE-GREEN PROJECT: HOW TO RUN GUIDE
+================================================================================
+
+This guide provides flawless instructions to build, deploy, and monitor the project
+in a local or development Kubernetes environment.
+
+--------------------------------------------------------------------------------
+1. PREREQUISITES
+--------------------------------------------------------------------------------
+Ensure you have the following installed and running:
+- Docker 
+- Kubernetes Cluster (Minikube recommended)
+- kubectl (CLI)
+- Node.js (v20+ if running locally)
+
+--------------------------------------------------------------------------------
+2. LOCAL BUILD & SECURITY SCAN
+--------------------------------------------------------------------------------
+Before deploying, always build and scan your container for vulnerabilities:
+
+# 1. Build the hardened Docker image
+docker build -t devsecops-node-app:v1 .
+
+# 2. Scan with Trivy (Fail on CRITICAL)
+# Install Trivy if not present: https://aquasecurity.github.io/trivy/
+trivy image --severity CRITICAL devsecops-node-app:v1
+
+--------------------------------------------------------------------------------
+3. KUBERNETES DEPLOYMENT (BLUE-GREEN)
+--------------------------------------------------------------------------------
+Deploy the core infrastructure using Kustomize:
+
+# 1. Deploy the Base manifests (Deployment, HPA, NetworkPolicy)
+kubectl apply -k k8s/base
+
+# 2. Deploy the Production Traffic Router
+kubectl apply -f k8s/production-service.yaml
+
+# 3. Deploy the Blue Overlay (Production Stable)
+kubectl apply -k k8s/overlays/blue
+
+# 4. Deploy the Green Overlay (Testing Version)
+kubectl apply -k k8s/overlays/green
+
+--------------------------------------------------------------------------------
+4. MONITORING STACK (PROMETHEUS & GRAFANA)
+--------------------------------------------------------------------------------
+Enable real-time observability:
+
+# 1. Deploy monitoring manifests (RBAC, ConfigMaps, Deployments)
+kubectl apply -f k8s/monitoring/
+
+# 2. Access Grafana
+# Wait for pods to be ready (kubectl get pods)
+# For Minikube users:
+minikube service grafana-service
+
+# For others, access at: http://localhost:32000
+# Default Login: admin / admin
+
+# 3. Connect Prometheus Data Source in Grafana:
+# URL: http://prometheus-service:9090
+
+--------------------------------------------------------------------------------
+5. CI/CD WORKFLOW SETUP (GITHUB ACTIONS)
+--------------------------------------------------------------------------------
+To enable the automated DevSecOps pipeline:
+1. Go to your GitHub Repository -> Settings -> Secrets and variables -> Actions.
+2. Add the following Repository Secrets:
+   - KUBE_CONFIG: Your ~/.kube/config file content.
+   - SONAR_TOKEN: Your SonarQube authentication token.
+   - SONAR_HOST_URL: Your SonarQube instance URL.
+
+--------------------------------------------------------------------------------
+6. TROUBLESHOOTING
+--------------------------------------------------------------------------------
+- Check pod status:  kubectl get pods
+- Check pod logs:    kubectl logs -l app=node-app
+- Verify Service:    kubectl get svc final-production-service
+
+================================================================================
+HAPPY DEPLOYING! 🛡️🚀
+================================================================================
