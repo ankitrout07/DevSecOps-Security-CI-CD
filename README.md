@@ -1,52 +1,82 @@
-# DevSecOps Blue-Green Deployment on Kubernetes
+# 🚀 Enterprise DevSecOps Blue-Green Deployment
 
-A production-ready CI/CD implementation featuring a Node.js application deployed using a **Blue-Green strategy**. This project focuses on zero-downtime updates, container hardening, and automated security scanning.
-
----
-
-## 🚀 Project Overview
-This project demonstrates a full DevSecOps lifecycle:
-1. **Develop:** Node.js application with environment-aware UI.
-2. **Harden:** Multi-stage Docker builds to reduce attack surface.
-3. **Scan:** Automated vulnerability assessment using **Trivy**.
-4. **Orchestrate:** Kubernetes (Minikube) cluster management using **Kustomize**.
-5. **Deploy:** Blue-Green traffic shifting for zero-downtime releases.
+A production-ready, security-first CI/CD implementation featuring a modular Node.js application deployed using a **Blue-Green strategy**. This project demonstrates a comprehensive DevSecOps lifecycle, from static analysis to real-time observability.
 
 ---
 
 ## 🛠 Tech Stack
-* **Runtime:** Node.js
-* **Containerization:** Docker (Multi-stage builds)
-* **Orchestration:** Kubernetes (Minikube)
-* **Configuration:** Kustomize (Overlays for Blue/Green)
-* **Security:** Trivy (Container Scanning)
+* **Runtime:** Node.js (Modular Architecture)
+* **Frontend:** Premium UI (Vanilla CSS + HTML5)
+* **Containerization:** Docker (Multi-stage hardening)
+* **Orchestration:** Kubernetes (Kustomize Overlays)
+* **Security (SAST):** SonarQube
+* **Security (SCA):** Trivy (Container Scanning)
+* **Observability:** Prometheus & Grafana
 * **CI/CD:** GitHub Actions
 
 ---
 
-## 🛡 Security Implementation
-The project follows "Shift Left" security principles:
-* **Trivy Scanning:** The pipeline fails automatically if any `CRITICAL` vulnerabilities are detected in the container image.
-* **Non-Root User:** The Dockerfile is configured to run the application as a non-privileged user to prevent container breakout exploits.
-* **Minimal Base Image:** Uses lightweight images to minimize the number of installed packages and potential vulnerabilities.
+## 🛡️ DevSecOps Lifecycle
+
+### 1. Develop & Modularize
+The application is split into a modular structure (`src/app/public`) to separate concerns and improve maintainability.
+
+### 2. Static Analysis (SAST)
+**SonarQube** is integrated into the CI pipeline to perform deep code analysis, identifying bugs, vulnerabilities, and code smells before the build phase.
+
+### 3. Container Hardening
+* **Multi-stage Builds:** Final images contain only production artifacts.
+* **Non-Root Execution:** Containers run as a non-privileged `node` user.
+* **K8s Security Contexts:** Enforced at the cluster level (No privilege escalation, dropped capabilities).
+
+### 4. Vulnerability Scanning (SCA)
+**Trivy** scans every image for `HIGH` and `CRITICAL` vulnerabilities. The pipeline fails automatically if any significant risks are detected.
 
 ---
 
-## 🏗 Kubernetes Architecture
-The project uses a **Base + Overlay** structure with Kustomize:
-* `k8s/base/`: Contains the core Deployment and Service manifests.
-* `k8s/overlays/blue/`: Configures the stable production environment.
-* `k8s/overlays/green/`: Configures the new version for testing.
-* `production-service.yaml`: Acts as the "Traffic Router" using label selectors.
+## 🚦 Blue-Green Deployment Strategy
+We use Kustomize to manage environment-specific configurations:
+* `k8s/base/`: Core manifests (Deployment, Service, HPA, NetworkPolicy).
+* `k8s/overlays/blue/`: Production-stable environment.
+* `k8s/overlays/green/`: Release-candidate environment for testing.
+* `k8s/production-service.yaml`: Acts as the traffic router (Load Balancer).
+
+**Deployment Flow:**
+1. Build and scan the new version.
+2. Deploy to the **Green** environment.
+3. Perform **Smoke Testing** on Green.
+4. Flip traffic from Blue to Green by patching the production service selector.
 
 ---
 
-## 🚦 Deployment & Traffic Shifting
+## � Monitoring & Observability
+Real-time insights are provided through a dedicated monitoring stack in `k8s/monitoring/`:
+* **Prometheus**: Scrapes metrics from port `8080` using Kubernetes service discovery.
+* **Grafana**: Visualizes performance and deployment status.
+  * **Access:** `http://localhost:32000`
+  * **Default Credentials:** `admin` / `admin`
 
-### 1. Build and Scan
-```bash
-# Build the image
-docker build -t devsecops-node-app:v1 .
+---
 
-# Scan for vulnerabilities
-trivy image --severity CRITICAL devsecops-node-app:v1
+## 🚀 Getting Started
+
+### Prerequisites
+* Kubernetes Cluster (Minikube/EKS/GKE)
+* `kubectl` and `kustomize` installed
+* Docker
+
+### Installation
+1. **Deploy Application Base:**
+   ```bash
+   kubectl apply -k k8s/base
+   ```
+2. **Deploy Monitoring Stack:**
+   ```bash
+   kubectl apply -f k8s/monitoring/
+   ```
+3. **Trigger CI/CD:**
+   Push to the `main` branch to trigger the GitHub Actions pipeline. Ensure `SONAR_TOKEN`, `SONAR_HOST_URL`, and `KUBE_CONFIG` are set in GitHub Secrets.
+
+---
+
+*Project maintained by Ankit Anupam Rout. Built for Security and Scalability.*
