@@ -49,7 +49,7 @@ We use Kustomize to manage environment-specific configurations:
 
 ---
 
-## � Monitoring & Observability
+## 📊 Monitoring & Observability
 Real-time insights are provided through a dedicated monitoring stack in `k8s/monitoring/`:
 * **Prometheus**: Scrapes metrics from port `8080` using Kubernetes service discovery.
 * **Grafana**: Visualizes performance and deployment status.
@@ -60,22 +60,105 @@ Real-time insights are provided through a dedicated monitoring stack in `k8s/mon
 
 ## 🚀 Getting Started
 
-### Prerequisites
-* Kubernetes Cluster (Minikube/EKS/GKE)
-* `kubectl` and `kustomize` installed
-* Docker
+### 1. Prerequisites
+Ensure you have the following installed and running:
+* **Docker**
+* **Kubernetes Cluster** (Minikube recommended)
+* **kubectl** and **kustomize**
+* **Node.js** (v20+ if running locally)
 
-### Installation
-1. **Deploy Application Base:**
+### 2. Local Setup & Testing
+Before building the container, ensure your local environment is configured for development.
+
+1. **Install Node.js Dependencies** (Installs Husky Pre-commit hooks)
+   ```bash
+   cd src/app
+   npm install
+   ```
+2. **Run Application Tests** (Validates Jest API endpoints)
+   ```bash
+   npm test
+   ```
+
+### 3. Local Build & Security Scan
+Before deploying, always build and scan your container for vulnerabilities.
+
+1. **Build the hardened Docker image**
+   ```bash
+   docker build -t devsecops-node-app:v1 .
+   ```
+2. **Scan with Trivy (Fail on CRITICAL)**
+   *(Install Trivy if not present: [Trivy Documentation](https://aquasecurity.github.io/trivy/))*
+   ```bash
+   trivy image --severity CRITICAL devsecops-node-app:v1
+   ```
+
+### 4. Kubernetes Deployment (Blue-Green)
+Deploy the core infrastructure using Kustomize:
+
+1. **Deploy the Base manifests** (Deployment, HPA, NetworkPolicy)
    ```bash
    kubectl apply -k k8s/base
    ```
-2. **Deploy Monitoring Stack:**
+2. **Deploy the Production Traffic Router**
+   ```bash
+   kubectl apply -f k8s/production-service.yaml
+   ```
+3. **Deploy the Blue Overlay** (Production Stable)
+   ```bash
+   kubectl apply -k k8s/overlays/blue
+   ```
+4. **Deploy the Green Overlay** (Testing Version)
+   ```bash
+   kubectl apply -k k8s/overlays/green
+   ```
+
+### 5. Monitoring & Real-Time Dashboard
+The application dashboard features a real-time API endpoint (`/api/status`) that dynamically streams Active Memory Usage and CPU Load to the UI.
+We enable deeper cluster observability using Prometheus and Grafana:
+
+1. **Deploy monitoring manifests**
    ```bash
    kubectl apply -f k8s/monitoring/
    ```
-3. **Trigger CI/CD:**
-   Push to the `main` branch to trigger the GitHub Actions pipeline. Ensure `SONAR_TOKEN`, `SONAR_HOST_URL`, and `KUBE_CONFIG` are set in GitHub Secrets.
+2. **Access Grafana**
+   Wait for pods to be ready (`kubectl get pods`).
+
+   *For Minikube users:*
+   ```bash
+   minikube service grafana-service
+   ```
+   
+   *For others, access at:*
+   http://localhost:32000  
+   *(Default Login: `admin` / `admin`)*
+
+3. **Connect Prometheus Data Source in Grafana:**
+   URL: `http://prometheus-service:9090`
+
+### 6. CI/CD Workflow Setup (GitHub Actions)
+To enable the automated DevSecOps pipeline:
+1. Go to your GitHub Repository -> **Settings** -> **Secrets and variables** -> **Actions**.
+2. Add the following Repository Secrets:
+   - `KUBE_CONFIG`: Your `~/.kube/config` file content.
+   - `SONAR_TOKEN`: Your SonarQube authentication token.
+   - `SONAR_HOST_URL`: Your SonarQube instance URL.
+
+Push to the `main` branch to trigger the GitHub Actions pipeline.
+
+### 7. Troubleshooting
+- **Check pod status:**  
+  ```bash
+  kubectl get pods
+  ```
+- **Check pod logs:**  
+  ```bash
+  kubectl logs -l app=node-app
+  ```
+- **Verify Service:**  
+  ```bash
+  kubectl get svc final-production-service
+  ```
 
 ---
-
+**HAPPY DEPLOYING! 🛡️🚀**
