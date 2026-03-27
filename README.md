@@ -79,4 +79,3 @@ Real-time insights are provided through a dedicated monitoring stack in `k8s/mon
 
 ---
 
-*Project maintained by Ankit Anupam Rout. Built for Security and Scalability.*
