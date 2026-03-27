@@ -1,46 +1,123 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DevSecOps | Deployment Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css">
+    <!-- Font Awesome for modern icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-
 <body id="app-body">
-    <div class="dashboard">
-        <div class="card">
-            <div class="glow"></div>
+    <div class="background-animation"></div>
+    <div class="dashboard-wrapper">
+        <header class="dashboard-header animate-slide-down">
+            <div class="logo-area">
+                <div class="icon-wrapper">
+                    <i class="fa-solid fa-shield-halved logo-icon"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>DevSecOps Center</h1>
+                    <p>Deployment Control Plane</p>
+                </div>
+            </div>
             <div class="badge-container">
-                <span class="status-badge" id="env-badge">Loading...</span>
+                <div class="pulse-ring"></div>
+                <span class="status-badge" id="env-badge">Syncing...</span>
             </div>
-            <h1>System Status</h1>
+        </header>
 
-            <div class="stats">
-                <div class="stat-item">
-                    <span class="stat-label">Deployment</span>
-                    <span class="stat-value" id="deployment-status">Healthy</span>
+        <main class="dashboard-grid">
+            <!-- System Health Card -->
+            <div class="card animate-pop-in item-1">
+                <div class="card-glow"></div>
+                <div class="card-header">
+                    <i class="fa-solid fa-server card-icon"></i>
+                    <h2>System Health</h2>
                 </div>
-                <div class="stat-item">
-                    <span class="stat-label">Version</span>
-                    <span class="stat-value" id="app-version">v1.1.0</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">Security</span>
-                    <span class="stat-value">Trivy Passed</span>
+                <div class="card-content">
+                    <div class="stat-row">
+                        <span class="stat-label">Status</span>
+                        <span class="stat-value status-healthy" id="deployment-status">
+                            <i class="fa-solid fa-circle-check"></i> Healthy
+                        </span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Uptime</span>
+                        <span class="stat-value highlight" id="uptime-counter">99.99%</span>
+                    </div>
                 </div>
             </div>
 
-            <div class="footer">
-                DevSecOps Blue-Green Control Center
+            <!-- Deployment Card -->
+            <div class="card animate-pop-in item-2">
+                <div class="card-glow"></div>
+                <div class="card-header">
+                    <i class="fa-solid fa-code-branch card-icon"></i>
+                    <h2>Deployment</h2>
+                </div>
+                <div class="card-content">
+                    <div class="stat-row">
+                        <span class="stat-label">Version</span>
+                        <span class="stat-value highlight-blue" id="app-version">{{APP_VERSION}}</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Last Sync</span>
+                        <span class="stat-value" id="last-sync">Just now</span>
+                    </div>
+                </div>
             </div>
-        </div>
+
+            <!-- Performance Card -->
+            <div class="card animate-pop-in item-3">
+                <div class="card-glow"></div>
+                <div class="card-header">
+                    <i class="fa-solid fa-gauge-high card-icon"></i>
+                    <h2>Performance</h2>
+                </div>
+                <div class="card-content">
+                    <div class="stat-row">
+                        <span class="stat-label">Latency</span>
+                        <span class="stat-value" id="latency-val">42 ms</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Throughput</span>
+                        <span class="stat-value" id="throughput-val">1.2 k/s</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Card -->
+            <div class="card animate-pop-in item-4">
+                <div class="card-glow"></div>
+                <div class="card-header">
+                    <i class="fa-solid fa-lock card-icon"></i>
+                    <h2>Security Scan</h2>
+                </div>
+                <div class="card-content">
+                    <div class="stat-row">
+                        <span class="stat-label">Trivy</span>
+                        <span class="stat-value status-secure">
+                            <i class="fa-solid fa-shield-virus"></i> Passed
+                        </span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">SonarQube</span>
+                        <span class="stat-value status-secure">A Rating</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="dashboard-footer animate-fade-in">
+            <p>Protected by DevSecOps Pipeline &copy; 2026</p>
+        </footer>
     </div>
 
+    <!-- Hidden config variables injected by server -->
     <script>
         window.__CONFIG__ = {
             env: '{{APP_ENV}}',
@@ -49,5 +126,4 @@
     </script>
     <script src="/js/app.js"></script>
 </body>
-
 </html>
