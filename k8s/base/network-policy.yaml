@@ -7,12 +7,12 @@ spec:
     matchLabels:
       app: node-app
   policyTypes:
-  - Ingress
+    - Ingress
   ingress:
-  - from:
-    - podSelector:
-        matchLabels:
-          role: frontend # Allow from frontend if exists
-    ports:
-    - protocol: TCP
-      port: 8080
+    - from:
+        - podSelector:
+            matchLabels:
+              role: frontend # Allow from frontend if exists
+      ports:
+        - protocol: TCP
+          port: 8080
