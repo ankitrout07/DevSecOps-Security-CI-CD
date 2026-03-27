@@ -3,9 +3,23 @@ const winston = require('winston');
 const client = require('prom-client');
 const path = require('path');
 const fs = require('fs');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 
 const app = express();
 const port = process.env.PORT || 8080;
+
+// Security Middleware
+app.use(helmet());
+
+// Rate Limiting
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per window
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+app.use(limiter);
 
 // Structured Logging with Winston
 const logger = winston.createLogger({
@@ -71,6 +85,17 @@ app.get('/metrics', async (req, res) => {
     res.end(await client.register.metrics());
 });
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
     logger.info(`App listening at http://localhost:${port}`);
 });
+
+// Graceful Shutdown for Kubernetes
+process.on('SIGTERM', () => {
+    logger.info('SIGTERM signal received: closing HTTP server');
+    server.close(() => {
+        logger.info('HTTP server closed');
+        process.exit(0);
+    });
+});
+
+module.exports = { app, server };
