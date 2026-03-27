@@ -1,4 +1,4 @@
-# 🚀 Enterprise DevSecOps Blue-Green Deployment
+# 🚀 DevSecOps Blue-Green Deployment
 
 A production-ready, security-first CI/CD implementation featuring a modular Node.js application deployed using a **Blue-Green strategy**. This project demonstrates a comprehensive DevSecOps lifecycle, from static analysis to real-time observability.
 
