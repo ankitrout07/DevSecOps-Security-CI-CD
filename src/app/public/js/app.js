@@ -21,8 +21,8 @@ async function init() {
         if (envBadge) envBadge.textContent = `${config.env} Active`;
         if (appVersion) appVersion.textContent = config.version;
 
-        // Initialize dynamic simulation loops
-        startSimulations();
+        // Initialize dynamic API polling
+        startRealTimeUpdates();
 
         console.log(`[DevSecOps] UI Initialized in ${config.env} mode (version: ${config.version})`);
     } catch (e) {
@@ -30,35 +30,38 @@ async function init() {
     }
 }
 
-function startSimulations() {
-    // Simulate slight fluctuations in Latency and Throughput metrics to make the UI feel "alive"
-    const latencyEl = document.getElementById('latency-val');
-    const throughputEl = document.getElementById('throughput-val');
-    
-    let baseLatency = 42;
-    let baseThroughput = 1.2;
-
-    setInterval(() => {
-        // Randomize latency +/- 5ms
-        const latencyVariation = Math.floor(Math.random() * 11) - 5;
-        let newLatency = baseLatency + latencyVariation;
-        if (newLatency < 20) newLatency = 20; 
+async function fetchStatus() {
+    try {
+        const res = await fetch('/api/status');
+        const data = await res.json();
         
-        // Randomize throughput +/- 0.3 k/s
-        const throughputVariation = (Math.random() * 0.6) - 0.3;
-        let newThroughput = (baseThroughput + throughputVariation).toFixed(2);
-
-        if (latencyEl) latencyEl.textContent = `${newLatency} ms`;
-        if (throughputEl) throughputEl.textContent = `${newThroughput} k/s`;
-
-        // Update last sync time
+        const uptimeEl = document.getElementById('uptime-counter');
+        const memoryEl = document.getElementById('memory-val');
+        const cpuEl = document.getElementById('cpu-val');
         const syncEl = document.getElementById('last-sync');
+
+        if (uptimeEl) {
+            const hours = Math.floor(data.uptime / 3600);
+            const minutes = Math.floor((data.uptime % 3600) / 60);
+            const seconds = Math.floor(data.uptime % 60);
+            uptimeEl.textContent = `${hours}h ${minutes}m ${seconds}s`;
+        }
+        
+        if (memoryEl) memoryEl.textContent = `${data.memory} MB`;
+        if (cpuEl) cpuEl.textContent = `${data.cpuLoad}`;
+
         if (syncEl) {
             const now = new Date();
             syncEl.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
         }
-        
-    }, ANIMATION_INTERVAL);
+    } catch (e) {
+        console.warn('Failed to fetch real-time status API', e);
+    }
+}
+
+function startRealTimeUpdates() {
+    fetchStatus(); // fetch immediately
+    setInterval(fetchStatus, ANIMATION_INTERVAL); // then poll
 }
 
 // Run on load

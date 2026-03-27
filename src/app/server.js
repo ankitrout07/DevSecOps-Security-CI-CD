@@ -3,6 +3,7 @@ const winston = require('winston');
 const client = require('prom-client');
 const path = require('path');
 const fs = require('fs');
+const os = require('os');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 
@@ -78,6 +79,16 @@ app.get('/', (req, res) => {
 
 app.get('/health', (req, res) => {
     res.status(200).send('OK');
+});
+
+// Real-time Dashboard API
+app.get('/api/status', (req, res) => {
+    res.json({
+        status: 'Healthy',
+        uptime: process.uptime(),
+        memory: (process.memoryUsage().rss / 1024 / 1024).toFixed(2), // in MB
+        cpuLoad: os.loadavg()[0].toFixed(2)
+    });
 });
 
 app.get('/metrics', async (req, res) => {
