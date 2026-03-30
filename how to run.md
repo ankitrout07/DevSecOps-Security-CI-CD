@@ -27,6 +27,15 @@ Before building the container, ensure your local environment is configured for d
    npm test
    ```
 
+3. **Run the Dashboard Locally** (Starts the Node development server)
+   ```bash
+   cd src/app
+   npm start
+   # or
+   node server.js
+   ```
+   *Access the new DevSecOps Control Plane at `http://localhost:8080`*
+
 ---
 
 ## 3. Local Build & Security Scan
@@ -72,9 +81,12 @@ Deploy the core infrastructure using Kustomize:
 
 ---
 
-## 5. Monitoring & Real-Time Dashboard
+## 5. The DevSecOps Control Plane & Monitoring
 
-The application dashboard now features a real-time API endpoint (`/api/status`) that dynamically streams Active Memory Usage and CPU Load to the UI every 3 seconds. 
+The frontend has been completely upgraded to a modern, dark-themed "DevSecOps Control Plane" featuring:
+- **Real-time API Polling:** Dynamically streams Active Memory Usage, CPU Load, and Uptime via `/api/status` to the UI every 3 seconds.
+- **Security Posture Integration:** Visually displays Trivy and SonarQube verification.
+- **Live Pipeline Logs:** Simulated terminal interface showing deployment logs. 
 
 Additionally, we enable deeper cluster observability using Prometheus and Grafana:
 

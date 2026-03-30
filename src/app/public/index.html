@@ -3,121 +3,191 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DevSecOps | Deployment Dashboard</title>
+    <title>DevSecOps | Control Plane</title>
+    <!-- Modern Tech Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Styles -->
     <link rel="stylesheet" href="/css/style.css">
-    <!-- Font Awesome for modern icons -->
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body id="app-body">
-    <div class="background-animation"></div>
-    <div class="dashboard-wrapper">
-        <header class="dashboard-header animate-slide-down">
-            <div class="logo-area">
-                <div class="icon-wrapper">
-                    <i class="fa-solid fa-shield-halved logo-icon"></i>
-                </div>
-                <div class="logo-text">
-                    <h1>DevSecOps Center</h1>
-                    <p>Deployment Control Plane</p>
-                </div>
-            </div>
-            <div class="badge-container">
-                <div class="pulse-ring"></div>
-                <span class="status-badge" id="env-badge">Syncing...</span>
-            </div>
-        </header>
+    <!-- Dynamic Background -->
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+    <div class="bg-grid"></div>
 
-        <main class="dashboard-grid">
-            <!-- System Health Card -->
-            <div class="card animate-pop-in item-1">
-                <div class="card-glow"></div>
-                <div class="card-header">
-                    <i class="fa-solid fa-server card-icon"></i>
-                    <h2>System Health</h2>
+    <div class="layout-wrapper">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar animate-slide-right">
+            <div class="brand">
+                <div class="logo">
+                    <i class="fa-solid fa-layer-group"></i>
                 </div>
-                <div class="card-content">
-                    <div class="stat-row">
-                        <span class="stat-label">Status</span>
-                        <span class="stat-value status-healthy" id="deployment-status">
-                            <i class="fa-solid fa-circle-check"></i> Healthy
-                        </span>
-                    </div>
-                    <div class="stat-row">
-                        <span class="stat-label">Uptime</span>
-                        <span class="stat-value highlight" id="uptime-counter">99.99%</span>
-                    </div>
+                <div class="brand-text">
+                    <h1>DevSecOps</h1>
+                    <span>Control Plane</span>
                 </div>
             </div>
+            
+            <nav class="nav-menu">
+                <div class="nav-section">MAIN</div>
+                <a href="#" class="nav-item active"><i class="fa-solid fa-border-all"></i> Overview</a>
+                <a href="#" class="nav-item"><i class="fa-solid fa-server"></i> Infra Status</a>
+                <a href="#" class="nav-item"><i class="fa-solid fa-shield-halved"></i> Security Posture</a>
+                <a href="#" class="nav-item"><i class="fa-solid fa-chart-line"></i> Analytics</a>
+                <div class="nav-section mt-auto">SYSTEM</div>
+                <a href="#" class="nav-item"><i class="fa-solid fa-gear"></i> Settings</a>
+            </nav>
 
-            <!-- Deployment Card -->
-            <div class="card animate-pop-in item-2">
-                <div class="card-glow"></div>
-                <div class="card-header">
-                    <i class="fa-solid fa-code-branch card-icon"></i>
-                    <h2>Deployment</h2>
-                </div>
-                <div class="card-content">
-                    <div class="stat-row">
-                        <span class="stat-label">Version</span>
-                        <span class="stat-value highlight-blue" id="app-version">{{APP_VERSION}}</span>
-                    </div>
-                    <div class="stat-row">
-                        <span class="stat-label">Last Sync</span>
-                        <span class="stat-value" id="last-sync">Just now</span>
-                    </div>
+            <div class="env-chip-wrapper">
+                <div class="env-chip">
+                    <span class="env-dot"></span>
+                    <span id="env-badge" class="env-text">Syncing...</span>
                 </div>
             </div>
+        </aside>
 
-            <!-- Performance Card -->
-            <div class="card animate-pop-in item-3">
-                <div class="card-glow"></div>
-                <div class="card-header">
-                    <i class="fa-solid fa-gauge-high card-icon"></i>
-                    <h2>Performance</h2>
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Topbar -->
+            <header class="topbar animate-slide-down">
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" placeholder="Search clusters, nodes, logs...">
                 </div>
-                <div class="card-content">
-                    <div class="stat-row">
-                        <span class="stat-label">Memory</span>
-                        <span class="stat-value" id="memory-val">-- MB</span>
-                    </div>
-                    <div class="stat-row">
-                        <span class="stat-label">CPU Load (1m)</span>
-                        <span class="stat-value" id="cpu-val">--</span>
+                <div class="topbar-actions">
+                    <button class="action-btn"><i class="fa-regular fa-bell"></i><span class="ping-dot"></span></button>
+                    <button class="action-btn"><i class="fa-solid fa-moon"></i></button>
+                    <div class="user-profile">
+                        <img src="https://ui-avatars.com/api/?name=Admin&background=0284c7&color=fff&bold=true" alt="User">
+                        <span>Admin</span>
+                        <i class="fa-solid fa-chevron-down"></i>
                     </div>
                 </div>
-            </div>
+            </header>
 
-            <!-- Security Card -->
-            <div class="card animate-pop-in item-4">
-                <div class="card-glow"></div>
-                <div class="card-header">
-                    <i class="fa-solid fa-lock card-icon"></i>
-                    <h2>Security Scan</h2>
-                </div>
-                <div class="card-content">
-                    <div class="stat-row">
-                        <span class="stat-label">Trivy</span>
-                        <span class="stat-value status-secure">
-                            <i class="fa-solid fa-shield-virus"></i> Passed
-                        </span>
+            <!-- Dashboard Content -->
+            <div class="dashboard-scroll">
+                <div class="grid-layout">
+                    
+                    <!-- Hero Card: Core Health -->
+                    <div class="card hero-card animate-pop-in st-1">
+                        <div class="card-glow"></div>
+                        <div class="card-header border-b">
+                            <div class="card-title">
+                                <div class="icon-box primary"><i class="fa-solid fa-heart-pulse"></i></div>
+                                <h2>Core Infrastructure Health</h2>
+                            </div>
+                            <div class="status-indicator">
+                                <span class="live-dot"></span> Live
+                            </div>
+                        </div>
+                        <div class="hero-body">
+                            <div class="health-gauge">
+                                <svg viewBox="0 0 100 100">
+                                    <circle class="gauge-bg" cx="50" cy="50" r="40"></circle>
+                                    <circle class="gauge-progress" cx="50" cy="50" r="40"></circle>
+                                </svg>
+                                <div class="gauge-content">
+                                    <span class="gauge-val" id="uptime-percentage">99.9%</span>
+                                    <span class="gauge-label">Healthy</span>
+                                </div>
+                            </div>
+                            <div class="hero-stats">
+                                <div class="stat-block">
+                                    <span class="stat-label">Uptime Counter</span>
+                                    <span class="stat-value mono" id="uptime-counter">00:00:00</span>
+                                </div>
+                                <div class="stat-block">
+                                    <span class="stat-label">Active Version</span>
+                                    <span class="stat-value highlight mono" id="app-version">{{APP_VERSION}}</span>
+                                </div>
+                                <div class="stat-block">
+                                    <span class="stat-label">Last Synchronization</span>
+                                    <span class="stat-value mono" id="last-sync">--:--:--</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="stat-row">
-                        <span class="stat-label">SonarQube</span>
-                        <span class="stat-value status-secure">A Rating</span>
+
+                    <!-- Performance Card -->
+                    <div class="card sm-card animate-pop-in st-2">
+                        <div class="card-glow"></div>
+                        <div class="card-header border-b">
+                            <div class="card-title">
+                                <div class="icon-box warning"><i class="fa-solid fa-microchip"></i></div>
+                                <h2>Performance Metrics</h2>
+                            </div>
+                        </div>
+                        <div class="card-body spaced">
+                            <div class="metric-row">
+                                <div class="metric-top">
+                                    <span>Memory Usage</span>
+                                    <span class="mono" id="memory-val">-- MB</span>
+                                </div>
+                                <div class="progress-bar"><div class="fill fill-warning" id="mem-bar" style="width: 0%;"></div></div>
+                            </div>
+                            <div class="metric-row line-top">
+                                <div class="metric-top">
+                                    <span>CPU Load (1m avg)</span>
+                                    <span class="mono" id="cpu-val">--</span>
+                                </div>
+                                <div class="progress-bar"><div class="fill fill-danger" id="cpu-bar" style="width: 0%;"></div></div>
+                            </div>
+                        </div>
                     </div>
+
+                    <!-- Security Card -->
+                    <div class="card sm-card animate-pop-in st-3">
+                        <div class="card-glow"></div>
+                        <div class="card-header border-b">
+                            <div class="card-title">
+                                <div class="icon-box success"><i class="fa-solid fa-shield-virus"></i></div>
+                                <h2>Security Posture</h2>
+                            </div>
+                        </div>
+                        <div class="card-body list">
+                            <div class="sec-item">
+                                <div class="sec-icon success"><i class="fa-solid fa-check"></i></div>
+                                <div class="sec-details">
+                                    <h4>Trivy Scan</h4>
+                                    <p>0 Critical Found</p>
+                                </div>
+                            </div>
+                            <div class="sec-item">
+                                <div class="sec-icon success"><i class="fa-solid fa-check"></i></div>
+                                <div class="sec-details">
+                                    <h4>SonarQube</h4>
+                                    <p>Quality Gate: A</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Live Terminal Panel -->
+                    <div class="card terminal-card animate-slide-up st-4">
+                        <div class="terminal-header">
+                            <div class="term-title"><i class="fa-solid fa-terminal"></i> Build & Deploy Pipeline Logs</div>
+                            <div class="term-controls">
+                                <span class="term-btn close"></span>
+                                <span class="term-btn min"></span>
+                                <span class="term-btn max"></span>
+                            </div>
+                        </div>
+                        <div class="terminal-body mono" id="terminal-output">
+                            <!-- Logs injected by JS -->
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </main>
-
-        <footer class="dashboard-footer animate-fade-in">
-            <p>Protected by DevSecOps Pipeline &copy; 2026</p>
-        </footer>
     </div>
 
-    <!-- Hidden config variables injected by server -->
+    <!-- Configuration from Server -->
     <script>
         window.__CONFIG__ = {
             env: '{{APP_ENV}}',
