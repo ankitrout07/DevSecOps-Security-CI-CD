@@ -47,23 +47,7 @@ async function init() {
     }
 }
 
-async function fetchStatus() {
-    try {
-        const res = await fetch('/api/status');
-        const data = await res.json();
-        
-        updateDashboard(data);
-    } catch (e) {
-        console.warn('API unavailable, simulating data for visuals...', e);
-        // Fallback simulation for demonstration if backend is down
-        const fakeData = {
-            uptime: Math.floor(Date.now()/1000) % 100000 + 86400,
-            memory: Math.floor(Math.random() * 50) + 150,
-            cpuLoad: (Math.random() * 0.5 + 0.1).toFixed(2)
-        };
-        updateDashboard(fakeData);
-    }
-}
+// fetchStatus removed in favor of WebSockets
 
 function updateDashboard(data) {
     const uptimeEl = document.getElementById('uptime-counter');
@@ -108,8 +92,24 @@ function formatZero(n) {
 }
 
 function startRealTimeUpdates() {
-    fetchStatus(); // immediate fetch
-    setInterval(fetchStatus, POLLING_INTERVAL);
+    if (typeof io === 'undefined') {
+        console.warn('Socket.io not loaded. Cannot start real-time updates.');
+        return;
+    }
+    
+    const socket = io();
+    
+    socket.on('connect', () => {
+        console.log('[WebSocket] Connected to Control Plane metrics stream');
+    });
+
+    socket.on('metrics-update', (data) => {
+        updateDashboard(data);
+    });
+
+    socket.on('disconnect', () => {
+        console.warn('[WebSocket] Disconnected from metrics stream');
+    });
 }
 
 function startLogStream() {

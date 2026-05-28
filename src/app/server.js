@@ -6,6 +6,8 @@ const fs = require('fs');
 const os = require('os');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const { Server } = require('socket.io');
+const { createClient } = require('redis');
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -30,6 +32,13 @@ const logger = winston.createLogger({
         new winston.transports.Console()
     ]
 });
+
+// Redis Client Setup
+const redisClient = createClient({
+    url: process.env.REDIS_URL || 'redis://redis-service:6379'
+});
+redisClient.on('error', (err) => logger.error('Redis Client Error', err));
+redisClient.connect().catch(console.error);
 
 // Prometheus Metrics
 const collectDefaultMetrics = client.collectDefaultMetrics;
@@ -81,6 +90,36 @@ app.get('/health', (req, res) => {
     res.status(200).send('OK');
 });
 
+// Simulated Expensive API with Redis Caching
+app.get('/api/analytics', async (req, res) => {
+    try {
+        const cacheKey = 'system_analytics';
+        const cachedData = await redisClient.get(cacheKey);
+
+        if (cachedData) {
+            logger.info('Serving /api/analytics from Redis cache');
+            return res.json(JSON.parse(cachedData));
+        }
+
+        logger.info('Cache miss for /api/analytics, generating data...');
+        // Simulate a 2-second heavy query
+        setTimeout(async () => {
+            const data = {
+                activeUsers: Math.floor(Math.random() * 1000) + 100,
+                transactionsProcessed: Math.floor(Math.random() * 50000) + 5000,
+                timestamp: new Date().toISOString()
+            };
+            
+            // Cache the result for 10 seconds
+            await redisClient.setEx(cacheKey, 10, JSON.stringify(data));
+            res.json(data);
+        }, 2000);
+    } catch (err) {
+        logger.error('Redis error in /api/analytics', err);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
 // Real-time Dashboard API
 app.get('/api/status', (req, res) => {
     res.json({
@@ -100,11 +139,36 @@ const server = app.listen(port, () => {
     logger.info(`App listening at http://localhost:${port}`);
 });
 
+// Socket.io for Real-Time Metrics
+const io = new Server(server);
+
+io.on('connection', (socket) => {
+    logger.info(`New client connected via WebSocket: ${socket.id}`);
+    
+    socket.on('disconnect', () => {
+        logger.info(`Client disconnected: ${socket.id}`);
+    });
+});
+
+// Broadcast metrics every 3 seconds
+setInterval(() => {
+    io.emit('metrics-update', {
+        status: 'Healthy',
+        uptime: process.uptime(),
+        memory: (process.memoryUsage().rss / 1024 / 1024).toFixed(2), // in MB
+        cpuLoad: os.loadavg()[0].toFixed(2)
+    });
+}, 3000);
+
 // Graceful Shutdown for Kubernetes
 process.on('SIGTERM', () => {
     logger.info('SIGTERM signal received: closing HTTP server');
-    server.close(() => {
+    server.close(async () => {
         logger.info('HTTP server closed');
+        try {
+            await redisClient.quit();
+            logger.info('Redis client closed');
+        } catch(e) {}
         process.exit(0);
     });
 });
